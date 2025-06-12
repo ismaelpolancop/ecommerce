@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+        - id: product-service
+          uri: lb://product-service
+          predicates:
+            - Path=/products/**
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/orders/**
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: api-gateway
+            client-secret: ilu6z9XSSf7XVewWn4HbTNTBWBQoe2hZ
+            scope: openid, profile, email
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          keycloak:
+            authorization-uri: http://keycloak:8084/auth/realms/ecommerce/protocol/openid-connect/auth
+            token-uri: http://keycloak:8084/auth/realms/ecommerce/protocol/openid-connect/token
+            user-info-uri: http://keycloak:8084/auth/realms/ecommerce/protocol/openid-connect/userinfo
+            user-name-attribute: preferred_username
+
+server:
+  port: 8080
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://discovery-server:8761/eureka/
+  instance:
+    preferIpAddress: true
