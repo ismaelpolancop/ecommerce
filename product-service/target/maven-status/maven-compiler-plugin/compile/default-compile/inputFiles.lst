@@ -1,0 +1,7 @@
+/home/polanco/Documents/Microservicios/online-store/e-commerce/ecommerce-project/product-service/src/main/java/com/ecommerce/product/ProductServiceApplication.java
+/home/polanco/Documents/Microservicios/online-store/e-commerce/ecommerce-project/product-service/src/main/java/com/ecommerce/product/config/SecurityConfig.java
+/home/polanco/Documents/Microservicios/online-store/e-commerce/ecommerce-project/product-service/src/main/java/com/ecommerce/product/controller/ProductController.java
+/home/polanco/Documents/Microservicios/online-store/e-commerce/ecommerce-project/product-service/src/main/java/com/ecommerce/product/dto/ProductDTO.java
+/home/polanco/Documents/Microservicios/online-store/e-commerce/ecommerce-project/product-service/src/main/java/com/ecommerce/product/model/Product.java
+/home/polanco/Documents/Microservicios/online-store/e-commerce/ecommerce-project/product-service/src/main/java/com/ecommerce/product/repository/ProductRepository.java
+/home/polanco/Documents/Microservicios/online-store/e-commerce/ecommerce-project/product-service/src/main/java/com/ecommerce/product/service/ProductService.java

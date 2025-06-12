@@ -1,0 +1,190 @@
+version: '3.8'
+
+services:
+  discovery-server:
+    image: discovery-server:latest
+    build:
+      context: ./discovery-server
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  api-gateway:
+    image: api-gateway:latest
+    build:
+      context: ./api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+      product-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+
+  auth-service:
+    image: auth-service:latest
+    build:
+      context: ./auth-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mysql-auth
+      - keycloak
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-auth:3306/auth_db
+      - SPRING_DATASOURCE_USERNAME=auth_user
+      - SPRING_DATASOURCE_PASSWORD=auth_password
+
+  product-service:
+    image: product-service:latest
+    build:
+      context: ./product-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      mysql-product:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+        restart: true
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-product:3306/productdb
+      - SPRING_DATASOURCE_USERNAME=product_user
+      - SPRING_DATASOURCE_PASSWORD=product_password
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  order-service:
+    image: order-service:latest
+    build:
+      context: ./order-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      mysql-order:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-order:3306/orderdb
+      - SPRING_DATASOURCE_USERNAME=order_user
+      - SPRING_DATASOURCE_PASSWORD=order_password
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.5
+    container_name: keycloak
+    ports:
+      - "8084:8084"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB=dev-file
+      - KC_DB_URL_HOST=/opt/keycloak/data
+      - KC_DB_USERNAME=sa
+      - KC_DB_PASSWORD=password
+      - KC_HOSTNAME=keycloak:8084
+      - KC_HTTP_PORT=8084
+      - KC_HTTP_RELATIVE_PATH=/auth
+      - KC_PROXY=edge
+      - KC_HOSTNAME_STRICT=false
+      - KC_HOSTNAME_STRICT_HTTPS=false
+    command: >
+      start-dev \
+      --http-relative-path /auth \
+      --hostname keycloak:8084 \
+      --http-port 8084 \
+      --db dev-file \
+      --db-url-host /opt/keycloak/data \
+      --db-username sa \
+      --db-password password \
+      --hostname-strict false \
+      --hostname-strict-https false
+      --proxy edge
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+
+  mysql-auth:
+    image: mysql:8.0
+    container_name: mysql-auth
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: auth_db
+      MYSQL_USER: auth_user
+      MYSQL_PASSWORD: auth_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_auth_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-product:
+    image: mysql:8.0
+    container_name: mysql-product
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: productdb
+      MYSQL_USER: product_user
+      MYSQL_PASSWORD: product_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_product_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-order:
+    image: mysql:8.0
+    container_name: mysql-order
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: orderdb
+      MYSQL_USER: order_user
+      MYSQL_PASSWORD: order_password
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_order_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql_auth_data:
+    driver: local
+  mysql_product_data:
+    driver: local
+  mysql_order_data:
+    driver: local
+  keycloak_data:
+    driver: local
+
+networks:
+  default:
+    driver: bridge

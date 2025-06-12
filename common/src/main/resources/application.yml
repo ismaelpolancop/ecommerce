@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: common-service
+
+logging:
+  level:
+    root: INFO
+
+keycloak:
+  auth-server-url: http://localhost:8080/auth
+  realm: ecommerce
+  resource: common-service
+  public-client: true
+
+# Additional shared configurations can be added here.

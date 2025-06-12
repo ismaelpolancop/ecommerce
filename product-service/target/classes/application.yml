@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: product-service
+  datasource:
+    url: jdbc:mysql://mysql-product:3306/productdb
+    username: product_user
+    password: product_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  sql:
+    init:
+      mode: always
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak:8084/auth/realms/ecommerce
+
+server:
+  port: 8083
+
+keycloak:
+  auth-server-url: http://keycloak:8084/auth
+  realm: ecommerce
+  resource: product-service
+  credentials:
+    secret: T4VirF0kA7e8PVQrfZfyyA65quTP6wTf
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://discovery-server:8761/eureka/
+  instance:
+    preferIpAddress: true
+
+logging:
+  level:
+    '[org.springframework]': INFO
+    '[com.ecommerce.product]': DEBUG

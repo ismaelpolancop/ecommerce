@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: order-service
+  datasource:
+    url: jdbc:mysql://mysql-order:3306/orderdb
+    username: order_user
+    password: order_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak:8084/auth/realms/ecommerce
+
+server:
+  port: 8082
+
+keycloak:
+  auth-server-url: http://keycloak:8084/auth
+  realm: ecommerce
+  resource: order-service
+  credentials:
+    secret: X4riobTLu5IqmHyO7AI0mjk6iKqhWfk8
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://discovery-server:8761/eureka/
+  instance:
+    preferIpAddress: true
+
+logging:
+  level:
+    '[org.springframework]': INFO
+    '[com.ecommerce.order]': DEBUG

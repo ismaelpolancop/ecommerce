@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: auth-service
+  cloud:
+    discovery:
+      enabled: true
+      service-id: auth-service
