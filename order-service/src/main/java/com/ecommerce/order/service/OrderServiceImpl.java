@@ -23,7 +23,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderDTO createOrder(OrderDTO orderDTO) {
         Order order = convertToEntity(orderDTO);
-        order.setOrderStatus(OrderStatus.PENDING);
+        order.setStatus(OrderStatus.PENDING);
         Order savedOrder = orderRepository.save(order);
         return convertToDTO(savedOrder);
     }
