@@ -119,7 +119,7 @@ services:
       --hostname-strict-https false
       --proxy edge
     volumes:
-      - keycloak_data:/opt/keycloak/data
+      - ./keycloak_data:/opt/keycloak/data
 
   mysql-auth:
     image: mysql:8.0
@@ -132,7 +132,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - mysql_auth_data:/var/lib/mysql
+      - ./mysql_auth_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
@@ -150,7 +150,7 @@ services:
     ports:
       - "3307:3306"
     volumes:
-      - mysql_product_data:/var/lib/mysql
+      - ./mysql_product_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
@@ -168,7 +168,7 @@ services:
     ports:
       - "3308:3306"
     volumes:
-      - mysql_order_data:/var/lib/mysql
+      - ./mysql_order_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
